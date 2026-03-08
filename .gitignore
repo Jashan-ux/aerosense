@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/
+
+# Large data files (exceed GitHub 100MB limit)
+model/output/dashboard_data.csv
+model/output/dashboard_compact.csv
+model/output/dashboard.db
+
+# Datasets (766MB total - too large for repo)
+model/datasets/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,59 @@
+{
+  "dataset": {
+    "total_rows": 1196747,
+    "total_features_engineered": 308,
+    "turbines": 5,
+    "date_range": "2022-01-01 00:00:00 to 2023-11-20 00:40:00",
+    "anomaly_events": 12,
+    "sensor_columns_original": 81
+  },
+  "preprocessing": {
+    "outliers_capped": 10590,
+    "columns_dropped_high_missing": []
+  },
+  "rul_model": {
+    "algorithm": "XGBoost Regressor",
+    "MAE_days": 2.79,
+    "RMSE_days": 4.69,
+    "R2": 0.994
+  },
+  "failure_classifier": {
+    "algorithm": "XGBoost Classifier",
+    "horizon_days": 7,
+    "ROC_AUC": 1.0,
+    "PR_AUC": 1.0,
+    "confusion_matrix": [
+      [
+        223897,
+        9
+      ],
+      [
+        0,
+        5444
+      ]
+    ]
+  },
+  "cost_analysis": {
+    "total_reactive_cost_EUR": 2058000,
+    "total_proactive_cost_EUR": 586000,
+    "false_alarm_cost_EUR": 0.94,
+    "net_savings_EUR": 1471999.06,
+    "savings_pct": 71.5,
+    "events_analyzed": 12
+  },
+  "outputs": [
+    "output/rul_model.joblib",
+    "output/cls_model.joblib",
+    "output/shap_rul_summary.png",
+    "output/shap_rul_bar.png",
+    "output/shap_cls_summary.png",
+    "output/shap_cls_bar.png",
+    "output/rul_actual_vs_predicted.png",
+    "output/confusion_matrix.png",
+    "output/precision_recall_curve.png",
+    "output/rul_timeline.png",
+    "output/feature_importance_rul.png",
+    "output/temp_heatmap.png",
+    "output/cost_savings_analysis.png"
+  ]
+}

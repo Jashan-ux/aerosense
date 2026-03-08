@@ -1,0 +1,414 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schedule-maintenance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "3c046b08-3102-4398-b1ff-0663c5268de9",
+      "name": "Webhook",
+      "webhookId": "32ba5681-5af1-430b-ada5-1943dc38fee9"
+    },
+    {
+      "parameters": {
+        "resource": "call",
+        "from": "+13186595584",
+        "to": "={{$json.phone_number}}",
+        "twiml": true,
+        "message": "=<Response>\n  <Say voice=\"alice\">\n    Automated maintenance dispatch alert.\n    Turbine ID {{$json.turbine_id}}.\n    Fault detected: {{$json.fault}}.\n    Remaining useful life is {{$json.RUL}}.\n    Failure probability is {{$json.failure_probability}}.\n    This case is classified as {{$json.priority}} priority.\n    Required technician specialization: {{$json.technician_type}}.\n    Please confirm maintenance scheduling immediately.\n  </Say>\n</Response>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "bbd43f9f-1b7d-4cca-9b5d-323b1ac8fab9",
+      "name": "Make a call",
+      "credentials": {
+        "twilioApi": {
+          "id": "tVD06sDexgn6iPzt",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c5b1984-0103-48e8-a881-2764a755e622",
+              "name": "turbine_id",
+              "value": "={{$json.body.turbine_id}}",
+              "type": "string"
+            },
+            {
+              "id": "51dbac8c-cebd-4301-8206-43fad096facc",
+              "name": "fault",
+              "value": "={{$json.body.fault}}",
+              "type": "string"
+            },
+            {
+              "id": "64f9a991-e0b6-4726-9466-0fe45cc30c9b",
+              "name": "RUL",
+              "value": "={{$json.body.RUL}}",
+              "type": "string"
+            },
+            {
+              "id": "c9faab17-563b-49d5-bf72-3bd47feb5efe",
+              "name": "failure_probability",
+              "value": "={{$json.body.failure_probability}}",
+              "type": "string"
+            },
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "name": "failure_prob_numeric",
+              "value": "={{ parseInt($json.body.failure_probability) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "8d397401-1c89-43ce-aac5-37638bf39b73",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "de44a8c4-d4b7-4b10-abe2-62bacb87684d",
+              "leftValue": "={{$json.failure_prob_numeric}}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        0
+      ],
+      "id": "0e1eb045-82ec-473c-ae7a-4b934f6fd28d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72769876-565f-4282-8f9f-a229d6f4df3a",
+              "name": "priority",
+              "value": "High",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        -96
+      ],
+      "id": "0d74ed99-472d-4e4a-b17a-ca33de329894",
+      "name": "high"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb22edc1-9054-4c24-b8a4-9ff53ea654bb",
+              "name": "priority",
+              "value": "Medium",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        112
+      ],
+      "id": "8e276503-af4f-4aa2-8373-02327f41fdce",
+      "name": "medium"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dd8a294d-d06c-4950-85a6-85acdcf1b2ad",
+              "leftValue": "={{$json.fault}}",
+              "rightValue": "Gearbox|Vibration|Drivetrain",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        16
+      ],
+      "id": "3b05c3db-6e37-4986-8ac5-efbd88920404",
+      "name": "technician"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a64d301d-5ed3-48da-aa5f-22438c18ae88",
+              "name": "technician_type",
+              "value": "Mechanical Specialist",
+              "type": "string"
+            },
+            {
+              "id": "4b56aee5-87c3-4bd5-8f57-a7ae20e4330d",
+              "name": "phone_number",
+              "value": "+918383986177",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        -96
+      ],
+      "id": "1f6501d1-69da-4f2d-b00a-a76ef6fb9682",
+      "name": "mechanical"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8c743604-683a-4e12-8a37-0339e089fe48",
+              "name": "technician_type",
+              "value": "Electrical Specialist",
+              "type": "string"
+            },
+            {
+              "id": "6096167b-4f91-49b4-a585-ea2c4165a2fd",
+              "name": "phone_number",
+              "value": "+918383986177",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        128
+      ],
+      "id": "4818ebac-f713-4e24-8e44-9dad4bf9c142",
+      "name": "electrical"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'dispatched', turbine_id: $json.turbine_id, priority: $json.priority, technician_type: $json.technician_type }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        0
+      ],
+      "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567891",
+      "name": "Respond"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "high",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "medium",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "high": {
+      "main": [
+        [
+          {
+            "node": "technician",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "medium": {
+      "main": [
+        [
+          {
+            "node": "technician",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "technician": {
+      "main": [
+        [
+          {
+            "node": "mechanical",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "electrical",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mechanical": {
+      "main": [
+        [
+          {
+            "node": "Make a call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "electrical": {
+      "main": [
+        [
+          {
+            "node": "Make a call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make a call": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3944bdfa-e863-465b-8812-995083f21fb7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1327fd7027501f725f861972782cab6a750f5b04ce16ba2404287c18963b3573"
+  },
+  "id": "lG9cseq261ZUahWT",
+  "tags": []
+}
